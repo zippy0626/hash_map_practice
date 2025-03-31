@@ -6,7 +6,7 @@ export default class HashMap {
     this.capacity = capacity;
     this.loadFactor = loadFactor;
     this.buckets = new Array(this.capacity).fill(null);
-    this.entries = 0;
+    this.entryCount = 0;
   }
 
   _hash(key) {
@@ -31,7 +31,7 @@ export default class HashMap {
 
   set(key, value) {
     // check if entries exceed threshold
-    if (this.entries >= Math.ceil(this.capacity * this.loadFactor)) {
+    if (this.entryCount >= Math.ceil(this.capacity * this.loadFactor)) {
     }
 
     let index = this._hash(key);
@@ -41,7 +41,7 @@ export default class HashMap {
       const linkedList = new LinkedList();
       linkedList.append({ key, value });
       this.buckets[index] = linkedList;
-      this.entries += 1;
+      this.entryCount += 1;
     } else {
       // bucket already has a LL and existing key
       let keyExists = bucket.contains({ key, value });
@@ -51,7 +51,7 @@ export default class HashMap {
       } else {
         // otherwise just append to bucket
         bucket.append({ key, value });
-        this.entries += 1;
+        this.entryCount += 1;
       }
     }
   }
@@ -93,7 +93,7 @@ export default class HashMap {
     while (currentNode) {
       if (currentNode.value.key === key) {
         this.buckets[index].removeAt(nodeIndex);
-        this.entries -= 1;
+        this.entryCount -= 1;
         return true;
       } else {
         currentNode = currentNode.nextNode;
@@ -105,13 +105,13 @@ export default class HashMap {
 
   length() {
     // Returns the number of stored keys in the hash map.
-    return this.entries;
+    return this.entryCount;
   }
 
   clear() {
     // Removes all entries in the hash map.
     this.buckets = new Array(this.capacity).fill(null);
-    this.entries = 0;
+    this.entryCount = 0;
   }
 
   keys() {
