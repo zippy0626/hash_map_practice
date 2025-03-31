@@ -5,7 +5,8 @@ export default class HashMap {
     // grow when the HashMap has more than (capacity * loadFactor) entries
     this.capacity = capacity;
     this.loadFactor = loadFactor;
-    this.buckets = new Array(capacity).fill(null);
+    this.buckets = new Array(this.capacity).fill(null);
+    this.size = 0;
   }
 
   _hash(key) {
@@ -16,27 +17,76 @@ export default class HashMap {
       // ensure that `hashCode` is never bigger than `capacity`s digits
       hashCode %= this.capacity;
     }
-    return hashCode; // bucket's index
+    return hashCode;
+  }
+
+  _rehash() {
+    // double buckets capacity
+    this.capacity *= 2;
+    let oldBuckets = this.buckets;
+    this.buckets = new Array(this.capacity).fill(null);
+
+    // Rehash existing entries
   }
 
   set(key, value) {
+    // check if entries exceed threshold
+    if (this.size >= Math.ceil(this.capacity * this.loadFactor)) {
+    }
+
     let index = this._hash(key);
     let bucket = this.buckets[index];
 
     if (bucket === null) {
-      // init a new LL
       const linkedList = new LinkedList();
       linkedList.append({ key, value });
       this.buckets[index] = linkedList;
+      this.size += 1;
     } else {
-      // bucket already has a LL
+      // bucket already has a LL and existing key
       let keyExists = bucket.contains({ key, value });
       if (keyExists) {
         let keyIndex = bucket.find({ key, value });
         this.buckets.at(keyIndex).value = { key, value };
-      } else { // otherwise just append to bucket
+      } else {
+        // otherwise just append to bucket
         bucket.append({ key, value });
+        this.size += 1;
       }
     }
+  }
+
+  get(key) {
+    // Takes a key and returns the value that is assigned to this key. If a key is not found, return null.
+    let index = this._hash(key);
+    let currentNode = this.buckets[index].head;
+    while (currentNode) {
+      if (currentNode.value.key === key) {
+        return currentNode.value.value;
+      } else {
+        currentNode = currentNode.nextNode;
+      }
+    }
+    return null;
+  }
+
+  has(key) {
+    // Takes a key and returns true or false based on whether or not the key is in the hash map.
+    let index = this._hash(key);
+    let currentNode = this.buckets[index].head;
+    while (currentNode) {
+      if (currentNode.value.key === key) {
+        return true;
+      } else {
+        currentNode = currentNode.nextNode;
+      }
+    }
+    return false
+  }
+
+  remove(key) {
+    // Takes a key, if the given key is in the hash map, it should remove the entry with that key and return true. 
+    // If the key isn’t in the hash map, it should return false
+    
   }
 }
