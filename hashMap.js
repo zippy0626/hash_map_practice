@@ -143,4 +143,16 @@ export default class HashMap {
     }
     return values;
   }
+
+  entries() {
+    // Returns an array that contains each key, value pair.
+    // Example: [[firstKey, firstValue], [secondKey, secondValue]]
+    const keys = this.keys();
+    const values = this.values();
+    const entries = [];
+    for (let i = 0; i < keys.length; i++) {
+      entries.push([keys[i], values[i]]);
+    }
+    return entries;
+  }
 }
