@@ -6,7 +6,7 @@ export default class HashMap {
     this.capacity = capacity;
     this.loadFactor = loadFactor;
     this.buckets = new Array(this.capacity).fill(null);
-    this.size = 0;
+    this.entries = 0;
   }
 
   _hash(key) {
@@ -31,7 +31,7 @@ export default class HashMap {
 
   set(key, value) {
     // check if entries exceed threshold
-    if (this.size >= Math.ceil(this.capacity * this.loadFactor)) {
+    if (this.entries >= Math.ceil(this.capacity * this.loadFactor)) {
     }
 
     let index = this._hash(key);
@@ -41,7 +41,7 @@ export default class HashMap {
       const linkedList = new LinkedList();
       linkedList.append({ key, value });
       this.buckets[index] = linkedList;
-      this.size += 1;
+      this.entries += 1;
     } else {
       // bucket already has a LL and existing key
       let keyExists = bucket.contains({ key, value });
@@ -51,7 +51,7 @@ export default class HashMap {
       } else {
         // otherwise just append to bucket
         bucket.append({ key, value });
-        this.size += 1;
+        this.entries += 1;
       }
     }
   }
@@ -81,12 +81,66 @@ export default class HashMap {
         currentNode = currentNode.nextNode;
       }
     }
-    return false
+    return false;
   }
 
   remove(key) {
-    // Takes a key, if the given key is in the hash map, it should remove the entry with that key and return true. 
+    // Takes a key, if the given key is in the hash map, it should remove the entry with that key and return true.
     // If the key isn’t in the hash map, it should return false
-    
+    let index = this._hash(key);
+    let currentNode = this.buckets[index].head;
+    let nodeIndex = 0;
+    while (currentNode) {
+      if (currentNode.value.key === key) {
+        this.buckets[index].removeAt(nodeIndex);
+        this.entries -= 1;
+        return true;
+      } else {
+        currentNode = currentNode.nextNode;
+        nodeIndex += 1;
+      }
+    }
+    return false;
+  }
+
+  length() {
+    // Returns the number of stored keys in the hash map.
+    return this.entries;
+  }
+
+  clear() {
+    // Removes all entries in the hash map.
+    this.buckets = new Array(this.capacity).fill(null);
+    this.entries = 0;
+  }
+
+  keys() {
+    // Returns an array containing all the keys inside the hash map.
+    const keys = [];
+    for (const bucket of this.buckets) {
+      if (bucket !== null) {
+        let currentNode = bucket.head;
+        while (currentNode) {
+          keys.push(currentNode.value.key);
+          currentNode = currentNode.nextNode;
+        }
+      }
+    }
+    return keys;
+  }
+
+  values() {
+    // Returns an array containing all the values.
+    const values = [];
+    for (const bucket of this.buckets) {
+      if (bucket !== null) {
+        let currentNode = bucket.head;
+        while (currentNode) {
+          values.push(currentNode.value.value);
+          currentNode = currentNode.nextNode;
+        }
+      }
+    }
+    return values;
   }
 }
