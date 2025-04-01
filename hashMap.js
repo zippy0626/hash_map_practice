@@ -1,27 +1,13 @@
 import LinkedList from "./linked_list.js";
 
 export default class HashMap {
-  constructor(capacity, loadFactor = 0.75) {
+  constructor(capacity, loadFactor = 0.8) {
     // grow when the HashMap has more than (capacity * loadFactor) entries
     this.capacity = capacity;
     this.loadFactor = loadFactor;
     this.buckets = new Array(this.capacity).fill(null);
     this.entryCount = 0;
     this.isRehashing = false;
-
-    // Proxy `intercepts` index accessing for buckets
-    this.buckets = new Proxy(this.buckets, {
-      get(target, index) {
-        // Allow Symbol indexes
-        if (typeof index === "symbol") return target[index];
-
-        let numIndex = Number(index);
-        if (!isNaN(numIndex) && (numIndex < 0 || numIndex >= target.length)) {
-          throw new Error("Trying to access index out of bounds");
-        }
-        return target[index];
-      },
-    });
   }
 
   _hash(key) {
@@ -36,39 +22,31 @@ export default class HashMap {
   }
 
   _rehash() {
-    // this.isRehashing = true;
-    // this.entryCount = 0;
+    this.isRehashing = true;
+    this.entryCount = 0;
 
-    // // double buckets capacity
-    // this.capacity *= 2;
-    // let oldBuckets = this.buckets;
-    // this.buckets = new Array(this.capacity).fill(null);
+    // new buckets are double capacity
+    this.capacity *= 2;
+    let oldBuckets = this.buckets;
+    this.buckets = new Array(this.capacity).fill(null);
 
-    // // Rehash existing entries
-    // for (const bucket of oldBuckets) {
-    //   if (bucket !== null) {
-    //     let currentNode = bucket.head;
-    //     while (currentNode) {
-    //       this.set(currentNode.value.key, currentNode.value.value);
-    //       currentNode = currentNode.nextNode;
-    //     }
-    //   }
-    // }
+    // Rehash existing entries
+    for (const bucket of oldBuckets) {
+      if (bucket !== null) {
+        let currentNode = bucket.head;
+        while (currentNode) {
+          this.set(currentNode.value.key, currentNode.value.value);
+          currentNode = currentNode.nextNode;
+        }
+      }
+    }
 
-    // this.isRehashing = false;
+    this.isRehashing = false;
   }
 
   set(key, value) {
-    // Check if entries exceed threshold. If currently rehashing, skip this block, to avoid stack overflow
-    // if (
-    //   this.entryCount >= Math.ceil(this.capacity * this.loadFactor) &&
-    //   !this.isRehashing
-    // ) {
-    //   this._rehash();
-    //   return;
-    // }
-
     let index = this._hash(key);
+    console.log(index)
     let bucket = this.buckets[index];
 
     if (bucket === null) {
@@ -89,6 +67,16 @@ export default class HashMap {
       // otherwise just append to the bucket
       bucket.append({ key, value });
       this.entryCount += 1;
+    }
+
+    // Rehash at end.
+    // Check if rehashing to prevent stack overflow
+    if (
+      this.entryCount >= this.capacity * this.loadFactor &&
+      !this.isRehashing
+    ) {
+      this._rehash();
+      return;
     }
   }
 

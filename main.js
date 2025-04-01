@@ -2,17 +2,20 @@ import HashMap from "./hashMap.js";
 
 const hmap = new HashMap(16);
 
-hmap.set("too", "Hello");
-hmap.set("oot", "Hi");
-hmap.set("cat", "Meow");
-hmap.set("act", "Purr");
-hmap.set("dog", "Bark");
-hmap.set("gob", "Woof");
-hmap.set("bat", "Fly");
-hmap.set("tab", "Glide");
-hmap.set("tip", "Point");
-hmap.set("pit", "Drop");
-hmap.set("nap", "Rest");
-hmap.set("pan", "Cook");
+hmap.set('apple', 'red')
+hmap.set('banana', 'yellow')
+hmap.set('carrot', 'orange')
+hmap.set('dog', 'brown')
+hmap.set('elephant', 'gray')
+hmap.set('frog', 'green')
+hmap.set('grape', 'purple')
+hmap.set('hat', 'black')
+hmap.set('ice cream', 'white')
+hmap.set('jacket', 'blue')
+hmap.set('kite', 'pink')
+hmap.set('lion', 'golden')
+hmap.set('moon', 'silver')
 
+console.log("Length:", hmap.length())
 console.log(hmap.buckets)
+console.log(hmap.entries())
