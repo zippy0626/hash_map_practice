@@ -7,6 +7,20 @@ export default class HashMap {
     this.loadFactor = loadFactor;
     this.buckets = new Array(this.capacity).fill(null);
     this.entryCount = 0;
+
+    // Proxy `intercepts` index accessing for buckets
+    this.buckets = new Proxy(this.buckets, {
+      get(target, index) {
+        // Allow Symbols (like Symbol.iterator)
+        if (typeof index === "symbol") return target[index];
+        
+        let numIndex = Number(index);
+        if (!isNaN(numIndex) && (numIndex < 0 || numIndex >= target.length)) {
+          throw new Error("Trying to access index out of bounds");
+        }
+        return target[index];
+      },
+    });
   }
 
   _hash(key) {

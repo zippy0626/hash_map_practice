@@ -16,7 +16,3 @@ hmap.set("nap", "Rest");
 hmap.set("pan", "Cook");
 
 console.log(hmap.buckets)
-console.log(hmap.length())
-console.log(hmap.keys())
-console.log(hmap.values())
-console.log(hmap.entries())
