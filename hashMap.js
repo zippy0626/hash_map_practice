@@ -7,13 +7,14 @@ export default class HashMap {
     this.loadFactor = loadFactor;
     this.buckets = new Array(this.capacity).fill(null);
     this.entryCount = 0;
+    this.isRehashing = false;
 
     // Proxy `intercepts` index accessing for buckets
     this.buckets = new Proxy(this.buckets, {
       get(target, index) {
-        // Allow Symbols (like Symbol.iterator)
+        // Allow Symbol indexes
         if (typeof index === "symbol") return target[index];
-        
+
         let numIndex = Number(index);
         if (!isNaN(numIndex) && (numIndex < 0 || numIndex >= target.length)) {
           throw new Error("Trying to access index out of bounds");
@@ -35,18 +36,37 @@ export default class HashMap {
   }
 
   _rehash() {
-    // double buckets capacity
-    this.capacity *= 2;
-    let oldBuckets = this.buckets;
-    this.buckets = new Array(this.capacity).fill(null);
+    // this.isRehashing = true;
+    // this.entryCount = 0;
 
-    // Rehash existing entries
+    // // double buckets capacity
+    // this.capacity *= 2;
+    // let oldBuckets = this.buckets;
+    // this.buckets = new Array(this.capacity).fill(null);
+
+    // // Rehash existing entries
+    // for (const bucket of oldBuckets) {
+    //   if (bucket !== null) {
+    //     let currentNode = bucket.head;
+    //     while (currentNode) {
+    //       this.set(currentNode.value.key, currentNode.value.value);
+    //       currentNode = currentNode.nextNode;
+    //     }
+    //   }
+    // }
+
+    // this.isRehashing = false;
   }
 
   set(key, value) {
-    // check if entries exceed threshold
-    if (this.entryCount >= Math.ceil(this.capacity * this.loadFactor)) {
-    }
+    // Check if entries exceed threshold. If currently rehashing, skip this block, to avoid stack overflow
+    // if (
+    //   this.entryCount >= Math.ceil(this.capacity * this.loadFactor) &&
+    //   !this.isRehashing
+    // ) {
+    //   this._rehash();
+    //   return;
+    // }
 
     let index = this._hash(key);
     let bucket = this.buckets[index];
@@ -57,16 +77,18 @@ export default class HashMap {
       this.buckets[index] = linkedList;
       this.entryCount += 1;
     } else {
-      // bucket already has a LL and existing key
-      let keyExists = bucket.contains({ key, value });
-      if (keyExists) {
-        let keyIndex = bucket.find({ key, value });
-        this.buckets.at(keyIndex).value = { key, value };
-      } else {
-        // otherwise just append to bucket
-        bucket.append({ key, value });
-        this.entryCount += 1;
+      // bucket already has a LL, find the key
+      let currentNode = bucket.head;
+      while (currentNode) {
+        if (currentNode.value.key === key) {
+          currentNode.value.value = value;
+          return;
+        }
+        currentNode = currentNode.nextNode;
       }
+      // otherwise just append to the bucket
+      bucket.append({ key, value });
+      this.entryCount += 1;
     }
   }
 
